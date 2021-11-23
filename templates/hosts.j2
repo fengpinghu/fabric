@@ -1,0 +1,38 @@
+all:
+  children:
+    calico-rr:
+      hosts: {}
+    etcd:
+      hosts:
+        node1:
+    kube-master:
+      hosts:
+        node1:
+    kube-node:
+      hosts:
+      {%- for host in hosts %} 
+        {{ host.name }}:
+      {%- endfor %}
+    {{''}}
+    k8s-cluster:
+      children:
+        kube-master:
+        kube-node:
+      vars:
+        slate_cluster_name: Fabric-UC  # Choose any cluster name conforming to Kubernetes naming standards that doesn't already exist
+        slate_group_name: ssl  # Provide an already-existing SLATE group you belong to here
+        slate_org_name: uchicago  # Provide your organization name here
+        docker_version: latest
+        calico_version: "v3.19.3"
+        dns_min_replicas: 1
+        supplementary_addresses_in_ssl_keys: ['{{hosts[0].pubip}}']
+        ansible_ssh_common_args: '-i {{bastion_key_filename}} -J {{bastion_username}}@{{bastion_public_addr}}  -i {{ssh_key_file_priv}}'
+  hosts:
+    {% for host in hosts %}
+    {{ host.name }}:
+      access_ip: {{host.privip}}
+      # The IP to use for SSH connections to this host.
+      ansible_host: {{host.pubip}}
+      # The IP to use for binding Kubernetes services.
+      ip: {{host.privip}}
+    {% endfor %}

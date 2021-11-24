@@ -26,7 +26,7 @@ all:
         calico_version: "v3.19.3"
         dns_min_replicas: 1
         supplementary_addresses_in_ssl_keys: ['{{hosts[0].pubip}}']
-        ansible_ssh_common_args: '-i {{bastion_key_filename}} -J {{bastion_username}}@{{bastion_public_addr}}  -i {{ssh_key_file_priv}}'
+        ansible_ssh_common_args: '-J {{bastion_username}}@{{bastion_public_addr}}  -i {{ssh_key_file_priv}}'
   hosts:
     {% for host in hosts %}
     {{ host.name }}:
